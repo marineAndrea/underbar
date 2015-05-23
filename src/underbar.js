@@ -60,7 +60,6 @@
         iterator(collection[i], i, collection);
       }
     } else {
-      var arr = [];
       for (var key in collection) {
         iterator(collection[key], key, collection);
       }
@@ -86,16 +85,31 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var arr = [];
+    _.each(collection, function(item) {
+      if (test(item)) {
+        arr.push(item);
+      }
+    });
+    return arr;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+    return _.filter(collection, function(el) { return !test(el); });
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+    var arr = [];
+    _.each(array, function(item) {
+      if (_.indexOf(arr, item) === -1) {
+        arr.push(item);
+      }
+    });
+    return arr;
   };
 
 
@@ -104,6 +118,18 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    var arr = [];
+    if (Array.isArray(collection)) {
+      for (var i = 0; i < collection.length; i++) {
+        arr.push(iterator(collection[i], i, collection));
+      }
+    } else {
+      var arr = [];
+      for (var key in collection) {
+        arr.push(iterator(collection[key], key, collection));
+      }
+    }
+    return arr;
   };
 
   /*
@@ -116,9 +142,6 @@
   // a certain property in it. E.g. take an array of people and return
   // an array of just their ages
   _.pluck = function(collection, key) {
-    // TIP: map is really handy when you want to transform an array of
-    // values into a new array of values. _.pluck() is solved for you
-    // as an example of this.
     return _.map(collection, function(item){
       return item[key];
     });
@@ -145,6 +168,24 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    if (Array.isArray(collection)) {
+      if (accumulator === undefined) {
+        accumulator = collection.shift();
+      }
+      for (var i = 0; i < collection.length; i++) {
+        accumulator = iterator(accumulator, collection[i]);
+      }
+    } else {
+      for (var key in collection) {
+        if (accumulator === undefined) {
+          accumulator = collection[key];
+          delete collection[key];
+          continue;
+        }
+        accumulator = iterator(accumulator, collection[key]);
+      }
+    }
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
