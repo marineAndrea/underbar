@@ -119,19 +119,11 @@
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
     var arr = [];
-    if (Array.isArray(collection)) {
-      for (var i = 0; i < collection.length; i++) {
-        arr.push(iterator(collection[i], i, collection));
-      }
-    } else {
-      var arr = [];
-      for (var key in collection) {
-        arr.push(iterator(collection[key], key, collection));
-      }
-    }
+    _.each(collection, function(item, index, collection) {
+      arr.push(iterator(item));
+    });
     return arr;
   };
-
   /*
    * TIP: map is really handy when you want to transform an array of
    * values into a new array of values. _.pluck() is solved for you
@@ -168,24 +160,15 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
-    if (Array.isArray(collection)) {
-      if (accumulator === undefined) {
-        accumulator = collection.shift();
+    var result = accumulator;
+    _.each(collection, function(item) {
+      if (result === undefined) {
+        result = item;
+      } else {
+        result = iterator(result, item);
       }
-      for (var i = 0; i < collection.length; i++) {
-        accumulator = iterator(accumulator, collection[i]);
-      }
-    } else {
-      for (var key in collection) {
-        if (accumulator === undefined) {
-          accumulator = collection[key];
-          delete collection[key];
-          continue;
-        }
-        accumulator = iterator(accumulator, collection[key]);
-      }
-    }
-    return accumulator;
+    });
+    return result;
   };
 
   // Determine if the array or object contains a given value (using `===`).
