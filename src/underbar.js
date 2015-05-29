@@ -38,15 +38,12 @@
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
-    if (n > array.length) {
-      return array;
-    } else if (n === 0) {
+    if (n === 0) {
       return [];
     } else if (n === undefined) {
       return array[array.length-1];
-    } else {
-      return array.slice(n-1, array.length);
     }
+    return array.slice(-n);
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -187,13 +184,26 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    return _.reduce(collection, function(pass, item) {
+      if (iterator == undefined) {
+        iterator = _.identity;
+      }
+      if (!pass) {
+        return false;
+      }
+      return Boolean(iterator(item));
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
-  };
+    if (iterator == undefined) {
+        iterator = _.identity;
+    }
+    return !(_.every(collection, function(item) {return !(iterator(item));}));
+};
 
 
   /**
@@ -215,6 +225,13 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    var args = _.last(Array.prototype.slice.call(arguments), 2);
+    _.each(args, function(arg) {
+      _.each(arg, function(value, key) {
+        obj[key] = value;
+      });
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
